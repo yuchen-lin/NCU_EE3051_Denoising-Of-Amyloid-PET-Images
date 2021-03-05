@@ -12,6 +12,10 @@ U-net modification:
 Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 
 ![alt text](img/result.png "ssim result")
+![alt text](img/PSNR.png "PSNR")
+![alt text](img/SSIM.png "SSIM")
+![alt text](img/RMSE.png "RMSE")
+![alt text](img/table.png "table")
 
 ## Resources
 
