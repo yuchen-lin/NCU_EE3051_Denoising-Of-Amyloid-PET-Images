@@ -49,7 +49,7 @@ We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring autho
 python preprocess.py --data-dir=<put your data path here!>
 ```
 
-For example, if your data folder name "data" and it's in the same folder as preprocess.py. Then:
+For example, if your data folder named "data" and it's in the same folder as preprocess.py. Then:
 
 ```
 python preprocess.py --data-dir=<put your data path here!!>
