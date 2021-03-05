@@ -26,7 +26,7 @@ Here are some set up recommendation.
 
 ### Anaconda
 
-By the time we finish this project, we're using Anaconda 2019.07. It's not required to download this specific version. Newr version should work just fine.  
+By the time we finish this project, we're using Anaconda 2019.07. It's not required to download this specific version. Newer version should work just fine.  
 
 ### Python requirements
 
