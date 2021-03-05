@@ -12,10 +12,6 @@ U-net modification:
 Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 
 ![alt text](img/result.png "ssim result")
-![alt text](img/PSNR.png "PSNR")
-![alt text](img/SSIM.png "SSIM")
-![alt text](img/RMSE.png "RMSE")
-![alt text](img/table.png "table")
 
 ## Resources
 
@@ -75,3 +71,10 @@ python main.py --mode=train --epoch=<put the number of epochs you want to train 
 ```
 python main.py --mode=predict --epoch=<put the number of epoch you want to use here!>
 ```
+
+## Results
+
+![alt text](img/PSNR.png "PSNR")
+![alt text](img/SSIM.png "SSIM")
+![alt text](img/RMSE.png "RMSE")
+![alt text](img/table.png "table")
