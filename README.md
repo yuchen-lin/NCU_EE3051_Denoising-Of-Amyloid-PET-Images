@@ -67,5 +67,5 @@ python main.py --mode=train --epoch=<put the number of epochs you want to train 
 ## Generating output
 
 ```
-python main.py --mode=predict --epoch=<put the number of epochs you want to use here!>
+python main.py --mode=predict --epoch=<put the number of epoch you want to use here!>
 ```
