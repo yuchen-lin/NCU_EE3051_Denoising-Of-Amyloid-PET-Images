@@ -2,11 +2,11 @@
 
 **Abstract:**
 
-_We apply U-net to synthesize 20 minutes late phase amyloid PET image using 5 minutes image.  
+We apply U-net to synthesize 20 minutes late phase amyloid PET image using 5 minutes image.  
 
 **Conclution:**
 
-_judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
+Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 
 ## Resources
 
@@ -38,9 +38,31 @@ conda install pydot
 
 Next, please download pydot from [Graphviz](https://graphviz.gitlab.io/download/) for model visualization.
 
-## Download data
-
 We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring authorization from OASIS, please download all AV45-PET-.nii data.
 
+## Preparing the PET training dataset
 
+**Step #1:** After acquiring authorization from [OASIS](https://www.oasis-brains.org/), please download all OASIS3-AV45-PET-.nii data.
 
+**Step #2:** Convert OASIS3 dataset into .tfrecord:
+```
+python preprocess.py --data-dir=<put your data path here!>
+```
+
+For example, if your data folder name "data" and it's in the same folder as preprocess.py. Then:
+
+```
+python preprocess.py --data-dir=<put your data path here!!>
+```
+
+## Training
+
+```
+python main.py --mode=train --epoch=<put the number of epochs you want to train here! (recommend=20~)>
+```
+
+## Generating output
+
+```
+python main.py --mode=predict --epoch=<put the number of epochs you want to use here!>
+```
