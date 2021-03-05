@@ -2,8 +2,9 @@
 
 **Abstract:**
 
-We apply U-net to synthesize 20 minutes late phase amyloid PET image using 5 minutes image.  
-U-net modification: 
+We apply U-net to synthesize 20 minutes late phase amyloid PET image using 5 minutes image. 
+
+**U-net modification:**
 * 3D layers for 3D input and output
 * Added some batch normalization layers for faster convergence
 
