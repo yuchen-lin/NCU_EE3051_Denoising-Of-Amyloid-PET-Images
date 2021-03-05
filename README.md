@@ -13,8 +13,8 @@ Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 
 ## Resources
 
-* [Paper (U-Net: Convolutional Networks for Biomedical Image Segmentation)](https://arxiv.org/abs/1505.04597)
-* [Paper (Ultra–Low-Dose 18F-Florbetaben Amyloid PET Imaging Using Deep Learning with Multi-Contrast MRI Inputs)](https://pubs.rsna.org/doi/full/10.1148/radiol.2018180940)
+* [U-Net: Convolutional Networks for Biomedical Image Segmentation](https://arxiv.org/abs/1505.04597)
+* [Ultra–Low-Dose 18F-Florbetaben Amyloid PET Imaging Using Deep Learning with Multi-Contrast MRI Inputs](https://pubs.rsna.org/doi/full/10.1148/radiol.2018180940)
 * [OASIS3 AV45_PET](https://www.oasis-brains.org/)
 
 ## Set up
