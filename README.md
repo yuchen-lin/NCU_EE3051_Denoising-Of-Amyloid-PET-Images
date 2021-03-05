@@ -11,6 +11,8 @@ U-net modification:
 
 Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 
+![alt text](img/result.png "ssim result")
+
 ## Resources
 
 * [U-Net: Convolutional Networks for Biomedical Image Segmentation](https://arxiv.org/abs/1505.04597)
