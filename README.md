@@ -55,7 +55,7 @@ python preprocess.py --data-dir=<put your data path here!>
 For example, if your data folder named "data" and it's in the same folder as preprocess.py. Then:
 
 ```
-python preprocess.py --data-dir=<put your data path here!!>
+python preprocess.py --data-dir=data
 ```
 
 ## Training
