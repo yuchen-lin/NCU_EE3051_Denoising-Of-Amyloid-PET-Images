@@ -49,7 +49,7 @@ We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring autho
 
 **Step #2:** Convert OASIS3 dataset into .tfrecord:
 ```
-python preprocess.py --data-dir=<put your data path here!>
+python preprocess.py --data-dir=<put your data folder path here! This folder should contain every training data.>
 ```
 
 For example, if you named your training data folder "data" and it's in the same folder as preprocess.py. Then:
