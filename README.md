@@ -35,10 +35,7 @@ After downloading Anaconda, please create a clean environment and install librar
 ```
 conda create -n tf2.4 python=3.8
 activate tf2.4
-pip install tensorflow==2.4.0
-pip install tensorflow_gpu==2.4.0
-pip install matplotlib
-pip install scipy
+pip install -r requirements.txt
 conda install pydot
 ```
 
