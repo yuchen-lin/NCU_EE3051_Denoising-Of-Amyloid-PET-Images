@@ -26,7 +26,7 @@ Here are some set up recommendation.
 
 ### Anaconda
 
-By the time we finish this project, we're using Anaconda 2019.07. It's not required to download this specific version. Newer version should work just fine.  
+By the time we finished this project, we're using Anaconda 2019.07. It's not required to download this specific version. Newer version should work just fine.  
 
 ### Python requirements
 
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 conda install pydot
 ```
 
-Next, please download pydot from [Graphviz](https://graphviz.gitlab.io/download/) for model visualization.
+Next, please download [Graphviz](https://graphviz.gitlab.io/download/) for model visualization.
 
 We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring authorization from OASIS, please download all AV45-PET-.nii data.
 
@@ -52,7 +52,7 @@ We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring autho
 python preprocess.py --data-dir=<put your data path here!>
 ```
 
-For example, if your data folder named "data" and it's in the same folder as preprocess.py. Then:
+For example, if you named your training data folder "data" and it's in the same folder as preprocess.py. Then:
 
 ```
 python preprocess.py --data-dir=data
