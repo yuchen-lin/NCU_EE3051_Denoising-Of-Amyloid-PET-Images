@@ -6,7 +6,6 @@ import datetime
 import PIL.Image
 import argparse
 import sys
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Train or predict.')
 parser.add_argument("--mode", help="=train or =predict")
