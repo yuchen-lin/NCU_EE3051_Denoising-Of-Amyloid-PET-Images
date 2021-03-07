@@ -142,13 +142,21 @@ def find_boundary(im_in, im_out):
     
     return im_in, im_out
 
+def search_folder(path):
+    if (path.find(".nii.gz") == -1):
+        folder_within_path = "".join(os.listdir(path))
+        return search_folder(os.path.join(path,folder_within_path))
+    else:
+        return path, path.split('\\')[-1]
+
 #Start transforming data from .nii to .tfrecord
 def start_preprocessing(in_dir):
     num=0
     total=len(os.listdir(in_dir))
     for name in os.listdir(in_dir):
         num+=1
-        img = read(os.path.join(in_dir,name))
+        path, img_name = search_folder(os.path.join(in_dir,name))
+        img = read(path)
         img_in, img_out = select_time(img)
         
         img = normalize(np.append(img_in,img_out,axis=0))
@@ -157,14 +165,14 @@ def start_preprocessing(in_dir):
         img_in, img_out = find_boundary(img_in, img_out)
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
-        show_info(img_final,name,num,total)
+        show_info(img_final,img_name,num,total)
         #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
         
         #Start saving to .tfrecord
-        record_path = os.path.join(train_path,name)
+        record_path = os.path.join(train_path,img_name)
         for tname in test_name:
-            if(tname == name.split('_acq')[0]):
-                record_path = os.path.join(test_path,name)
+            if(tname == img_name.split('_acq')[0]):
+                record_path = os.path.join(test_path,img_name)
                 test_name.remove(tname)
         
         with tf.io.TFRecordWriter(record_path+'.tfrecords') as writer:
@@ -174,6 +182,7 @@ def start_preprocessing(in_dir):
 def main():
     parser = argparse.ArgumentParser(description='Preprocess OASIS3 AV45 .nii.gz, output will be .tfrecord format.')
     parser.add_argument("--data-dir", help="Folder path, all .nii.gz downloaded from OASIS3 saved in one folder.")
+    parser.add_argument("--folder-struc", help="a=> .nii.gz barried within layers of folders; b=> ")
     args = parser.parse_args()
     start_preprocessing(args.data_dir)
 
