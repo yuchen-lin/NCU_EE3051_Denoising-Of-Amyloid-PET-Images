@@ -47,9 +47,30 @@ We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring autho
 
 **Step #1:** After acquiring authorization from [OASIS](https://www.oasis-brains.org/), please download all OASIS3-AV45-PET-.nii data.
 
-**Step #2:** Convert OASIS3 dataset into .tfrecord:
+**Step #2:** Convert OASIS3 dataset into .tfrecord:  
+
+There are two data folder structures we accept:  
+
 ```
-python preprocess.py --data-dir=<put your data folder path here! This folder should contain every training data.>
+data/
+  folder1/folder2/folder3/.../folderN/sub-OAS30001_ses-d2430_acq-AV45_pet.nii.gz
+  folder1/folder2/folder3/.../folderN/sub-OAS30002_ses-d2340_acq-AV45_pet.nii.gz
+  folder1/folder2/folder3/.../folderN/sub-OAS30003_ses-d2682_acq-AV45_pet.nii.gz
+  ...
+
+or
+
+data/
+  sub-OAS30001_ses-d2430_acq-AV45_pet.nii.gz
+  sub-OAS30002_ses-d2340_acq-AV45_pet.nii.gz
+  sub-OAS30003_ses-d2682_acq-AV45_pet.nii.gz
+  ...
+```
+
+Start preprocessing:
+
+```
+python preprocess.py --data-dir=<put your data folder path here!>
 ```
 
 For example, if you named your training data folder "data" and it's in the same folder as preprocess.py. Then:
@@ -61,7 +82,13 @@ python preprocess.py --data-dir=data
 ## Training
 
 ```
-python main.py --mode=train --epoch=<put the number of epochs you want to train here! (recommend=20~)>
+python main.py --mode=train --epoch=<put the number of epochs you want to train here! (recommend=30~)>
+```
+
+To inspect training loss, please use tensorboard:
+
+```
+tensorboard --logdir=logs
 ```
 
 ## Generating output
