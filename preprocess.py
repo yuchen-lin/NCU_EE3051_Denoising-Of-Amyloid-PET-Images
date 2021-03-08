@@ -156,7 +156,7 @@ def start_preprocessing(in_dir):
     for name in os.listdir(in_dir):
         path, img_name = search_folder(os.path.join(in_dir,name))
         img = read(path)
-        if len(img[0]) != 26 :
+        if len(img) != 26 :
             print("------------------------------------------------")
             print(f'{img_name} does not have exexactly 26 time frames!\nInstead, it has {len(img[0])} time frames.\ndiscarded...')
             continue
