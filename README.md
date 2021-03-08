@@ -97,6 +97,9 @@ tensorboard --logdir=logs
 python main.py --mode=predict --epoch=<put the number of epoch you want to use here!>
 ```
 
+* PNG image outputs from left to right: input/prediction/ground truth.
+* NIFTI image outputs have already specified whether it's input, prediction or ground truth at the end of their file name.
+
 ## Results
 
 ![alt text](img/PSNR.png "PSNR")
