@@ -158,7 +158,7 @@ def start_preprocessing(in_dir):
         img = read(path)
         if len(img) != 26 :
             print("------------------------------------------------")
-            print(f'{img_name} does not have exexactly 26 time frames!\nInstead, it has {len(img[0])} time frames.\ndiscarded...')
+            print(f'{img_name} does not have exexactly 26 time frames!\nInstead, it has {len(img)} time frames.\ndiscarded...')
             continue
         img_in, img_out = select_time(img)
         
