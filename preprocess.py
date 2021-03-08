@@ -154,9 +154,12 @@ def start_preprocessing(in_dir):
     num=0
     total=len(os.listdir(in_dir))
     for name in os.listdir(in_dir):
-        num+=1
         path, img_name = search_folder(os.path.join(in_dir,name))
         img = read(path)
+        if len(img[0]) != 26 :
+            print("------------------------------------------------")
+            print(f'{img_name} does not have exexactly 26 time frames!\nInstead, it has {len(img[0])} time frames.\ndiscarded...')
+            continue
         img_in, img_out = select_time(img)
         
         img = normalize(np.append(img_in,img_out,axis=0))
@@ -165,6 +168,7 @@ def start_preprocessing(in_dir):
         img_in, img_out = find_boundary(img_in, img_out)
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
+        num+=1
         show_info(img_final,img_name,num,total)
         #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
         
