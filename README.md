@@ -26,11 +26,18 @@ Here are some set up recommendation.
 
 ### Anaconda
 
-By the time we finished this project, we're using Anaconda 2019.07. It's not required to download this specific version. Newer version should work just fine.  
+By the time we finished this project, we're using [Anaconda](https://www.anaconda.com/products/individual) 2019.07. It's not required to download this specific version. Newer version should work just fine.  
 
 ### Python requirements
 
-After downloading Anaconda, please create a clean environment and install library dependencies:
+Download these first:  
+
+* [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/community/)  
+* [CUDA 11.0](https://developer.nvidia.com/cuda-11.0-download-archive)  
+* [cuDNN 8.0](https://developer.nvidia.com/cudnn)  
+* [Graphviz](https://graphviz.gitlab.io/download/)  
+
+Next, please open anaconda prompt, create a clean environment and install library dependencies:
 
 ```
 conda create -n tf2.4 python=3.8
@@ -38,10 +45,6 @@ activate tf2.4
 pip install -r requirements.txt
 conda install pydot
 ```
-
-Next, please download [Graphviz](https://graphviz.gitlab.io/download/) for model visualization.
-
-We used data from [OASIS3](https://www.oasis-brains.org/). After acquiring authorization from OASIS, please download all AV45-PET-.nii data.
 
 ## Preparing the PET training dataset
 
