@@ -156,9 +156,9 @@ def start_preprocessing(in_dir):
     for name in os.listdir(in_dir):
         path, img_name = search_folder(os.path.join(in_dir,name))
         img = read(path)
-        if len(img) != 26 :
+        if img.shape != np.zeros(shape=(t,d-1,h,w)).shape :
             print("------------------------------------------------")
-            print(f'{img_name} does not have exexactly 26 time frames!\nInstead, it has {len(img)} time frames.\ndiscarded...')
+            print(f'{img_name} = {img.shape}\ndiscarded...')
             continue
         img_in, img_out = select_time(img)
         
