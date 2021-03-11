@@ -1,4 +1,5 @@
 tensorflow==2.4.0
 tensorflow_gpu==2.4.0
+tensorboard
 SimpleITK
 Pillow
