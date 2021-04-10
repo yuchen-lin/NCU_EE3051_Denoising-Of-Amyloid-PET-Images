@@ -97,6 +97,12 @@ def select_time(img):
     
     return img_in, img_out
 
+def select_time2D(img):
+    img_in = img[22]
+    img_out = aver(img[22:26],4)
+    return img_in, img_out
+
+
 def show_info(i,n,num,total):
     print("------------------------------------------------")
     print(f'[{num}/{total}]')
@@ -199,13 +205,13 @@ def start_preprocessing2D(in_dir):      #2D
             print("------------------------------------------------")
             print(f'{img_name} = {img.shape}\ndiscarded...')
             continue
-        img_in, img_out = select_time(img)
+        img_in, img_out = select_time2D(img)
         img = np.append(normalize(img_in),normalize(img_out),axis=0)    #STF,GT分別NORMALIZE
         img_in = img[0:d]
         img_out = img[d:2*d]
         img_in, img_out = find_boundary(img_in, img_out)
-        img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
-        img_final = np.expand_dims(img_final,axis=4)
+        img_final = np.append(img_in,img_out,axis=2) #合併 左STF右GT
+        #img_final = np.expand_dims(img_final,axis=4)
         num+=1
         show_info(img_final,img_name,num,total)
         #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
