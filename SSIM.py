@@ -85,10 +85,10 @@ def ssim(distorted_image,original_image,window_size=11,gaussian_sigma=1.5,K1=0.0
     ssim=l*c*s
     #blackground elimination
     blackground=0
-    
+        
     for a in uxy:
         if 0<=a<=0:               #背景亮度上下限
             blackground+=1
     
     ssimoutput=(np.mean(ssim)-blackground)/(ssim.shape[0]*ssim.shape[1]-blackground)
-    return ssimoutput
+    return ssimoutput, ssim.shape[0]*ssim.shape[1], blackground
