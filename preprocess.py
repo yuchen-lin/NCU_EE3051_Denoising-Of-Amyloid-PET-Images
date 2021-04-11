@@ -5,16 +5,16 @@ import SimpleITK as sitk
 import argparse
 from matplotlib import pyplot as plt
 
-test_path = './tfrecord_denoise/test'
-train_path = './tfrecord_denoise/train'
-test2D_path = './tfrecord_denoise/test2D'
-train2D_path = './tfrecord_denoise/train2D'
+test_path = './preprocessed_images/test'
+train_path = './preprocessed_images/train'
+test_path_2D = './preprocessed_images/test_2D'
+train_path_2D = './preprocessed_images/train_2D'
 try:
-    os.mkdir("./tfrecord_denoise")
+    os.mkdir("./preprocessed_images")
     os.mkdir(test_path)
     os.mkdir(train_path)
-    os.mkdir(test2D_path)
-    os.mkdir(train2D_path)
+    os.mkdir(test_path_2D)
+    os.mkdir(train_path_2D)
 except:
     pass
 
@@ -85,31 +85,23 @@ def read(image_path):
     img = sitk.GetArrayFromImage(itk_img)
     return img
 
-def aver(img, frames):
-    ave = np.sum(img, axis=0)/frames
-    return ave
-
 def select_time(img):
-    img_in = img[22]
+    img_in = normalize(img[22])
     img_in = np.append(img_in,np.zeros(shape=(1,h,w)),axis=0)
-    img_out = aver(img[22:26],4)
+    img_out = (normalize(img[22])+normalize(img[23])+normalize(img[24])+normalize(img[25]))/4
     img_out = np.append(img_out,np.zeros(shape=(1,h,w)),axis=0)
     
     return img_in, img_out
-
-def select_time2D(img):
-    img_in = img[22]
-    img_out = aver(img[22:26],4)
-    return img_in, img_out
-
 
 def show_info(i,n,num,total):
     print("------------------------------------------------")
     print(f'[{num}/{total}]')
     print(n)
     print(f'shape = {i.shape}')
-    print(f'max = {np.max(i)}')
-    print(f'min = {np.min(i)}')
+    print(f'max_in = {np.max(i[0])}')
+    print(f'min_in = {np.min(i[0])}')
+    print(f'max_out = {np.max(i[1])}')
+    print(f'min_out = {np.min(i[1])}')
     print(f'mean = {np.mean(i)}')
 
 def find_boundary(im_in, im_out):
@@ -158,7 +150,7 @@ def search_folder(path):
         folder_within_path = "".join(os.listdir(path))
         return search_folder(os.path.join(path,folder_within_path))
     else:
-        return path, path.split('\\')[-1]
+        return path, path.split('\\')[-1].replace('.nii.gz', '')
 
 #Start transforming data from .nii to .tfrecord
 def start_preprocessing(in_dir):
@@ -171,11 +163,8 @@ def start_preprocessing(in_dir):
             print("------------------------------------------------")
             print(f'{img_name} = {img.shape}\ndiscarded...')
             continue
+
         img_in, img_out = select_time(img)
-        
-        img = np.append(normalize(img_in),normalize(img_out),axis=0)    #STF,GT分別NORMALIZE
-        img_in = img[0:d]
-        img_out = img[d:2*d]
         img_in, img_out = find_boundary(img_in, img_out)
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
@@ -186,19 +175,22 @@ def start_preprocessing(in_dir):
         
         #Start saving to .tfrecord
         record_path = os.path.join(train_path,img_name)
+        record_path_2D = os.path.join(train_path_2D,img_name)
         for tname in test_name:
             if(tname == img_name.split('_acq')[0]):
                 record_path = os.path.join(test_path,img_name)
+                record_path_2D = os.path.join(test_path_2D,img_name)
                 test_name.remove(tname)
         
         with tf.io.TFRecordWriter(record_path+'.tfrecords') as writer:
             example = create_tfrecords(img_final)
             writer.write(example.SerializeToString())
+
         #儲存成2D slice
         slice = 0
-        while slice <=127:
-            plt.imsave(record_path+'_'+str(slice).zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
-            slice+=1   
+        while slice <= 127:
+            plt.imsave(record_path_2D+'_'+str(slice).zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
+            slice+=1
             
             
 def main():
