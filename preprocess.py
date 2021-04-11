@@ -197,7 +197,7 @@ def start_preprocessing(in_dir):
         #儲存成2D slice
         slice = 0
         while slice <=127:
-            plt.imsave(record_path+slice.zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
+            plt.imsave(record_path+'_'+str(slice).zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
             slice+=1   
             
             
