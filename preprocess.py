@@ -179,6 +179,7 @@ def start_preprocessing(in_dir):
         img_in, img_out = find_boundary(img_in, img_out)
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
+        img_final2D = np.append(img_in,img_out,axis=2) #合併 左STF右GT
         num+=1
         show_info(img_final,img_name,num,total)
         #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
@@ -193,38 +194,12 @@ def start_preprocessing(in_dir):
         with tf.io.TFRecordWriter(record_path+'.tfrecords') as writer:
             example = create_tfrecords(img_final)
             writer.write(example.SerializeToString())
-            
-            
-def start_preprocessing2D(in_dir):      #2D
-    num=0
-    total=len(os.listdir(in_dir))
-    for name in os.listdir(in_dir):
-        path, img_name = search_folder(os.path.join(in_dir,name))
-        img = read(path)
-        if img.shape != np.zeros(shape=(t,d-1,h,w)).shape :
-            print("------------------------------------------------")
-            print(f'{img_name} = {img.shape}\ndiscarded...')
-            continue
-        img_in, img_out = select_time2D(img)
-        img = np.append(normalize(img_in),normalize(img_out),axis=0)    #STF,GT分別NORMALIZE
-        img_in = img[0:d]
-        img_out = img[d:2*d]
-        img_in, img_out = find_boundary(img_in, img_out)
-        img_final = np.append(img_in,img_out,axis=2) #合併 左STF右GT
-        #img_final = np.expand_dims(img_final,axis=4)
-        num+=1
-        show_info(img_final,img_name,num,total)
-        #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
-        #Start saving to 2DPNG
-        record_path = os.path.join(train2D_path,img_name)
-        for tname in test_name:
-            if(tname == img_name.split('_acq')[0]):
-                record_path = os.path.join(test2D_path,img_name)
-                test_name.remove(tname)
+        #儲存成2D slice
         slice = 0
         while slice <=127:
-            plt.imsave(record_path+slice.zfill(3)+'.png', img_final[slice], cmap='gray')   #slice=第幾層
-            slice+=1
+            plt.imsave(record_path+slice.zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
+            slice+=1   
+            
             
 def main():
     parser = argparse.ArgumentParser(description='Preprocess OASIS3 AV45 .nii.gz, output will be .tfrecord format.')
@@ -232,6 +207,5 @@ def main():
     parser.add_argument("--folder-struc", help="a=> .nii.gz barried within layers of folders; b=> ")
     args = parser.parse_args()
     start_preprocessing(args.data_dir)
-    start_preprocessing2D(args.data_dir)
 if __name__ == "__main__":
     main()
