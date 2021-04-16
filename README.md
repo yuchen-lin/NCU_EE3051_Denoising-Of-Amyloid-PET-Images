@@ -85,7 +85,7 @@ python preprocess.py --data-dir=data
 ## Training
 
 ```
-python main.py --mode=train --epoch=<put the number of epochs you want to train here! (recommend=30~)>
+python main.py --mode=train --model=3d --epoch=<put the number of epochs you want to train here! (recommend=30~)>
 ```
 
 To inspect training loss, please use tensorboard:
@@ -97,7 +97,7 @@ tensorboard --logdir=logs
 ## Generating output
 
 ```
-python main.py --mode=predict --epoch=<put the number of epoch you want to use here!>
+python main.py --mode=predict --model=3d --epoch=<put the number of epoch you want to use here!>
 ```
 
 * PNG image outputs from left to right: input/prediction/ground truth.

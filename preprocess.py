@@ -188,10 +188,9 @@ def start_preprocessing(in_dir):
 
         #儲存成2D slice
         slice = 0
-        while slice <= 127:
+        while slice <= 126:
             plt.imsave(record_path_2D+'_'+str(slice).zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
             slice+=1
-            
             
 def main():
     parser = argparse.ArgumentParser(description='Preprocess OASIS3 AV45 .nii.gz, output will be .tfrecord format.')
@@ -199,5 +198,6 @@ def main():
     parser.add_argument("--folder-struc", help="a=> .nii.gz barried within layers of folders; b=> ")
     args = parser.parse_args()
     start_preprocessing(args.data_dir)
+
 if __name__ == "__main__":
     main()
