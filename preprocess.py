@@ -5,55 +5,7 @@ import SimpleITK as sitk
 import argparse
 import PIL.Image
 
-test_path = './preprocessed_images/test'
-train_path = './preprocessed_images/train'
-
-try:
-    os.mkdir("./preprocessed_images")
-except:
-    pass
-
-try:
-    os.mkdir(test_path)
-    os.mkdir(train_path)
-except:
-    pass
-
-test_name = ['sub-OAS30024_ses-d0084', # start of positive
-             'sub-OAS30026_ses-d129',
-             'sub-OAS30026_ses-d0696',
-             'sub-OAS30039_ses-d0103',
-             'sub-OAS30042_ses-d0067',
-             'sub-OAS30075_ses-d148',
-             'sub-OAS30075_ses-d0442',
-             'sub-OAS30075_ses-d0967',
-             'sub-OAS30080_ses-d1318',
-             'sub-OAS30098_ses-d0036',
-             'sub-OAS30114_ses-d0086',
-             'sub-OAS30127_ses-d110',
-             'sub-OAS30127_ses-d0837',
-             'sub-OAS30135_ses-d2367',
-             'sub-OAS30135_ses-d2931', # end of positive
-             'sub-OAS30003_ses-d3731', # start of negative
-             'sub-OAS30004_ses-d3457',
-             'sub-OAS30005_ses-d2384',
-             'sub-OAS30006_ses-d2342',
-             'sub-OAS30007_ses-d1636',
-             'sub-OAS30007_ses-d2722',
-             'sub-OAS30008_ses-d1327',
-             'sub-OAS30010_ses-d0068',
-             'sub-OAS30013_ses-d0102',
-             'sub-OAS30025_ses-d2298',
-             'sub-OAS30028_ses-d1260',
-             'sub-OAS30028_ses-d1847',
-             'sub-OAS30044_ses-d61',
-             'sub-OAS30044_ses-d1319',
-             'sub-OAS30046_ses-d1968'] #end of negative
-
-t = 26  #time frames
-d = 128 #depth
-h = 256 #height
-w = 256 #width
+from models.mkfolder import mfdr
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -107,6 +59,8 @@ def show_info(i,n,num,total):
     print(f'mean = {np.mean(i)}')
 
 def find_boundary(im_in, im_out):
+    h = im_out.shape()[1]
+    w = im_out.shape()[2]
     top = 0
     bot = h-1
     left = 0
@@ -115,22 +69,22 @@ def find_boundary(im_in, im_out):
     center_depth = 60
     shift = 7
     
-    for i in range(1,128):
+    for i in range(0,h):
         if np.mean(im_out[center_depth,top]) > threshold:
             break
         else:
             top+=1
-    for i in range(1,128):
+    for i in range(0,h):
         if np.mean(im_out[center_depth,bot]) > threshold:
             break
         else:
             bot-=1
-    for i in range(1,128):
+    for i in range(0,w):
         if np.mean(im_out[center_depth,:,left]) > threshold:
             break
         else:
             left+=1
-    for i in range(1,128):
+    for i in range(0,w):
         if np.mean(im_out[center_depth,:,right]) > threshold:
             break
         else:
@@ -155,7 +109,7 @@ def search_folder(path):
         return path, path.split('\\')[-1].replace('.nii.gz', '')
 
 #Start transforming data from .nii to .tfrecord
-def start_preprocessing(in_dir):
+def start_preprocessing(in_dir, test_name):
     num=0
     total=len(os.listdir(in_dir))
     for name in os.listdir(in_dir):
@@ -169,12 +123,10 @@ def start_preprocessing(in_dir):
         img_in, img_out = select_time(img)
         img_in, img_out = find_boundary(img_in, img_out)
 
+        # Normalize by the max of two images
         norm_together = normalize(np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0))
         img_in = norm_together[0]
         img_out = norm_together[1]
-
-        img_final2D = np.append(img_in,img_out,axis=2) #合併 左STF右GT
-        img_final2D = (img_final2D+1)*127.5
 
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
@@ -184,34 +136,58 @@ def start_preprocessing(in_dir):
                 
         #Start saving to .tfrecord
         record_path = os.path.join(train_path_3D,img_name)
-        record_path_2D = os.path.join(train_path_2D,img_name)
         for tname in test_name:
             if(tname == img_name.split('_acq')[0]):
                 record_path = os.path.join(test_path_3D,img_name)
-                record_path_2D = os.path.join(test_path_2D,img_name)
                 test_name.remove(tname)
         
         with tf.io.TFRecordWriter(record_path+'.tfrecords') as writer:
             example = create_tfrecords(img_final)
             writer.write(example.SerializeToString())
-
-        #Start saving to .png
-        for slice in range(0,90):
-            output = img_final2D[slice]
-            outname = record_path_2D+'_'+str(slice).zfill(3)+'.png'
-            PIL.Image.fromarray(output).convert('L').save(outname)
             
 def main():
 
+    test_path = './preprocessed_images/test'
+    train_path = './preprocessed_images/train'
 
+    test_name = ['sub-OAS30024_ses-d0084', # start of amyloid positive
+                'sub-OAS30026_ses-d129',
+                'sub-OAS30026_ses-d0696',
+                'sub-OAS30039_ses-d0103',
+                'sub-OAS30042_ses-d0067',
+                'sub-OAS30075_ses-d148',
+                'sub-OAS30075_ses-d0442',
+                'sub-OAS30075_ses-d0967',
+                'sub-OAS30080_ses-d1318',
+                'sub-OAS30098_ses-d0036',
+                'sub-OAS30114_ses-d0086',
+                'sub-OAS30127_ses-d110',
+                'sub-OAS30127_ses-d0837',
+                'sub-OAS30135_ses-d2367',
+                'sub-OAS30135_ses-d2931', # end of amyloid positive
+                'sub-OAS30003_ses-d3731', # start of amyloid negative
+                'sub-OAS30004_ses-d3457',
+                'sub-OAS30005_ses-d2384',
+                'sub-OAS30006_ses-d2342',
+                'sub-OAS30007_ses-d1636',
+                'sub-OAS30007_ses-d2722',
+                'sub-OAS30008_ses-d1327',
+                'sub-OAS30010_ses-d0068',
+                'sub-OAS30013_ses-d0102',
+                'sub-OAS30025_ses-d2298',
+                'sub-OAS30028_ses-d1260',
+                'sub-OAS30028_ses-d1847',
+                'sub-OAS30044_ses-d61',
+                'sub-OAS30044_ses-d1319',
+                'sub-OAS30046_ses-d1968'] #end of amyloid negative
 
-
+    mfdr(('preprocessed_images', train_path, test_path))
 
     parser = argparse.ArgumentParser(description='Preprocess OASIS3 AV45 .nii.gz, output will be .tfrecord format.')
     parser.add_argument("--data-dir", help="Folder path, all .nii.gz downloaded from OASIS3 saved in one folder.")
     parser.add_argument("--folder-struc", help="a=> .nii.gz barried within layers of folders; b=> ")
     args = parser.parse_args()
-    start_preprocessing(args.data_dir)
+    start_preprocessing(args.data_dir, test_name)
     
 if __name__ == "__main__":
     main()

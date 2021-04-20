@@ -7,21 +7,11 @@ import datetime
 import argparse
 import sys
 
+from models.mkfolder import mfdr
 from models.load import load_tfrecord, load_png
 from models.unet_2d import model as md2
 from models.unet_3d import model as md3
 from models.gen_img import generate_images_2d, generate_images_3d, stack_png_to_nii
-
-def prepareCheckpointsFolder(selectModel):
-    try:
-        os.mkdir('./training_checkpoints')
-    except:
-        pass
-    
-    try:
-        os.mkdir(f'./training_checkpoints/{selectModel}')
-    except:
-        pass
 
 def generator_loss(gen_output, target):
     l1_loss = tf.reduce_mean(tf.abs(gen_output - target))
@@ -40,9 +30,9 @@ def train_step(generator, generator_optimizer, summary_writer, input_image, targ
     with summary_writer.as_default():
         tf.summary.scalar('l1_loss', l1_loss, step=epoch)
 
-def fit(generator, generator_optimizer, summary_writer, train_ds, epochs, train_num, checkpoint, checkpoint_prefix, BATCH_SIZE):
-    print('To view training loss, type "tensorboard --logdir=logs" in anaconda prompt (environment activated)')
-    print()
+def fit(generator, generator_optimizer, summary_writer, train_ds, epochs, train_num, checkpoint, checkpoint_prefix, BATCH_SIZE, mode):
+    print('\nTo view training loss, type "tensorboard --logdir=logs" in anaconda prompt (environment activated)\n')
+
     for epoch in range(epochs):
         start = time.time()
             
@@ -52,7 +42,11 @@ def fit(generator, generator_optimizer, summary_writer, train_ds, epochs, train_
         count=0
         for n, (input_image, target) in train_ds.enumerate():
             count+=1
-            train_step(generator, generator_optimizer, summary_writer, input_image, target, epoch)
+            if mode = '3d':
+                train_step(generator, generator_optimizer, summary_writer, input_image, target, epoch)
+            elif mode = '2d':
+                for i in range(90):
+                    train_step(generator, generator_optimizer, summary_writer, input_image[i], target[i], epoch)
             if count%10==0 :
                 print(f'[{count}/{int(train_num/BATCH_SIZE)}]')
         
@@ -65,39 +59,30 @@ def load_weights(UseEpoch, checkpoint, model_name):
     checkpoint.restore(f'./training_checkpoints/{model_name}/ckpt-' + str(UseEpoch))
     print('using epoc ' + str(UseEpoch))
 
-def create_img_folder(name):
-    try:
-        os.mkdir(f'./{name}/')
-        print(f"created folder {name}")
-    except:
-        print(f"folder <{name}> already existed")
-
 def main():
-    train_dir_3d = './preprocessed_images/train_3D'
-    test_dir_3d = './preprocessed_images/test_3D'
-    train_dir_2d = './preprocessed_images/train_2D'
-    test_dir_2d = './preprocessed_images/test_2D'
+    train_dir = './preprocessed_images/train'
+    test_dir = './preprocessed_images/test'
+    save_img_folder_name_png_3d = 'results/outputs_png_3d_Unet'
+    save_img_folder_name_nii_3d = 'results/outputs_nii_3d_Unet'
+    save_img_folder_name_png_2d = 'results/outputs_png_2d_Unet'
+    save_img_folder_name_nii_2d = 'results/outputs_nii_2d_Unet'
+
+    train_num = len(os.listdir(train_dir))
+    test_num = len(os.listdir(test_dir))
     
     d=128
     h=128
     w=128
-
     OUTPUT_CHANNELS = 1
     learning_rate = 2e-4
-    save_img_folder_name = 'results/outputs_png_3d_Unet'
-    save_img_folder_name_nii = 'results/outputs_nii_3d_Unet'
-    save_img_folder_name_2d = 'results/outputs_png_2d_Unet'
-    save_img_folder_name_nii_2d = 'results/outputs_nii_2d_Unet'
-    train_num_2d = len(os.listdir(train_dir_2d))
-    test_num_2d = len(os.listdir(test_dir_2d))
-    train_num_3d = len(os.listdir(train_dir_3d))
-    test_num_3d = len(os.listdir(test_dir_3d))
+    BATCH_SIZE = 1
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", help="train or predict")
     parser.add_argument("--model", help="2d or 3d")
     parser.add_argument("--epoch", help="If mode=train => number of training epoch./nIf mode=predict => predict on specified epoch's weight.")
     args = parser.parse_args()
+
     if not args.mode :
         print('Please specify epoch!')
         print('Check --info for more information.')
@@ -128,34 +113,24 @@ def main():
         print()
 
     generator_optimizer = tf.keras.optimizers.Adam(learning_rate)
+
     if args.mode == 'train':
+        train_dataset, test_dataset, names = load_tfrecord(train_dir, test_dir, BATCH_SIZE, train_num)
+        mfdr('./training_checkpoints', f'./training_checkpoints/{args.model}')
+        checkpoint_dir = f'./training_checkpoints/{args.model}'
+        checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+        log_dir="logs/"
+        summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+
         if args.model == '2d':
-            BATCH_SIZE = 50
-            train_dataset, test_dataset, names = load_png(train_dir_2d, test_dir_2d, BATCH_SIZE, train_num_2d)
             generator = md2(h, w, OUTPUT_CHANNELS)
-
-            prepareCheckpointsFolder('2d')
-            checkpoint_dir = f'./training_checkpoints/2d'
-            checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            log_dir="logs/"
-            summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-
             #tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64, to_file="model_unet2D.png")
             fit(generator, generator_optimizer, summary_writer, train_dataset, int(args.epoch), train_num_2d, checkpoint, checkpoint_prefix, BATCH_SIZE)
 
         elif args.model == '3d':
-            BATCH_SIZE = 1
-            train_dataset, test_dataset, names = load_tfrecord(train_dir_3d, test_dir_3d, BATCH_SIZE, train_num_3d)
             generator = md3(d, h, w, OUTPUT_CHANNELS)
-
-            prepareCheckpointsFolder('3d')
-            checkpoint_dir = f'./training_checkpoints/3d'
-            checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            log_dir="logs/"
-            summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-
             #tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64, to_file="model_unet3D.png")
             fit(generator, generator_optimizer, summary_writer, train_dataset, int(args.epoch), train_num_3d, checkpoint, checkpoint_prefix, BATCH_SIZE)
 
@@ -165,35 +140,26 @@ def main():
             sys.exit(1)
 
     elif args.mode == 'predict':
-        create_img_folder('results')
+        mfdr('results')
+        print("Total train data = "+str(train_num))
+        print("Total test data = "+str(test_num))
+        train_dataset, test_dataset, names = load_tfrecord(train_dir, test_dir, BATCH_SIZE, train_num)
+
         if args.model == '2d':
-            BATCH_SIZE = 1
-            print("Total train data = "+str(train_num_2d))
-            print("Total test data = "+str(test_num_2d))
-            train_dataset, test_dataset, names = load_png(train_dir_2d, test_dir_2d, BATCH_SIZE, train_num_2d)
             generator = md2(h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            create_img_folder(save_img_folder_name_2d)
-            create_img_folder(save_img_folder_name_nii_2d)
+            mfdr((save_img_folder_name_png_2d, save_img_folder_name_nii_2d))
             load_weights(args.epoch, checkpoint, '2d')
-            for (inp, tar), name in zip(test_dataset,names):
-                name_string = name.numpy().decode().split('test_2D\\')[1]
-                generate_images_2d(generator, inp, tar, name_string, save_img_folder_name_2d)
-            stack_png_to_nii(save_img_folder_name_2d, save_img_folder_name_nii_2d)
 
         elif args.model == '3d':
-            BATCH_SIZE = 1
-            print("Total train data = "+str(train_num_3d))
-            print("Total test data = "+str(test_num_3d))
-            train_dataset, test_dataset, names = load_tfrecord(train_dir_3d, test_dir_3d, BATCH_SIZE, train_num_3d)
             generator = md3(d, h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            create_img_folder(save_img_folder_name)
-            create_img_folder(save_img_folder_name_nii)
+            mfdr((save_img_folder_name_png_3d, save_img_folder_name_nii_3d))
             load_weights(args.epoch, checkpoint, '3d')
-            for (inp, tar), name in zip(test_dataset,names):
-                name_string = name.numpy().decode().split('test_3D\\')[1].split('_acq')[0]
-                generate_images_3d(generator, inp, tar, name_string, save_img_folder_name, save_img_folder_name_nii)
+            
+        for (inp, tar), name in zip(test_dataset,names):
+            name_string = name.numpy().decode().split('test\\')[1].split('_acq')[0]
+            generate_images(generator, inp, tar, name_string, save_img_folder_name, save_img_folder_name_nii)
     
     else:
         print()
