@@ -3,7 +3,7 @@ import tensorflow as tf
 def model(h, w, OUTPUT_CHANNELS):
     initializer = tf.random_normal_initializer(0., 0.02)
     
-    inputs = tf.keras.layers.Input(shape=[d,h,w,OUTPUT_CHANNELS])
+    inputs = tf.keras.layers.Input(shape=[h,w,OUTPUT_CHANNELS])
     skips = []
     
     x = inputs
@@ -50,7 +50,7 @@ def model(h, w, OUTPUT_CHANNELS):
     x = tf.keras.layers.Conv2D(filters=128,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)
     x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.ReLU()(x)
-    x = tf.keras.layers.UpSampling3D(size=(2, 2))(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2))(x)
     
     x = tf.keras.layers.Concatenate()([x, skips[2]])
     x = tf.keras.layers.Conv2D(filters=192,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)
@@ -62,7 +62,7 @@ def model(h, w, OUTPUT_CHANNELS):
     x = tf.keras.layers.Conv2D(filters=64,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)
     x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.ReLU()(x)
-    x = tf.keras.layers.UpSampling3D(size=(2, 2))(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2))(x)
     
     x = tf.keras.layers.Concatenate()([x, skips[1]])
     x = tf.keras.layers.Conv2D(filters=96,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)
@@ -74,7 +74,7 @@ def model(h, w, OUTPUT_CHANNELS):
     x = tf.keras.layers.Conv2D(filters=32,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)
     x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.ReLU()(x)
-    x = tf.keras.layers.UpSampling3D(size=(2, 2))(x)
+    x = tf.keras.layers.UpSampling2D(size=(2, 2))(x)
     
     x = tf.keras.layers.Concatenate()([x, skips[0]])
     x = tf.keras.layers.Conv2D(filters=48,kernel_size=3,strides=1,padding='same',kernel_initializer=initializer)(x)

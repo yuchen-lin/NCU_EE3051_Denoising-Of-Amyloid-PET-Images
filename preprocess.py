@@ -3,18 +3,19 @@ import os
 import tensorflow as tf
 import SimpleITK as sitk
 import argparse
-from matplotlib import pyplot as plt
+import PIL.Image
 
 test_path = './preprocessed_images/test'
 train_path = './preprocessed_images/train'
-test_path_2D = './preprocessed_images/test_2D'
-train_path_2D = './preprocessed_images/train_2D'
+
 try:
     os.mkdir("./preprocessed_images")
+except:
+    pass
+
+try:
     os.mkdir(test_path)
     os.mkdir(train_path)
-    os.mkdir(test_path_2D)
-    os.mkdir(train_path_2D)
 except:
     pass
 
@@ -64,6 +65,7 @@ def normalize(i):
     norm = (i/(np.max(i)/2))-1
     norm[norm>1] = 1.
     norm[norm<-1] = -1.
+
     return norm
 
 def create_tfrecords(image_arr):
@@ -86,9 +88,9 @@ def read(image_path):
     return img
 
 def select_time(img):
-    img_in = normalize(img[22])
+    img_in = img[22]
     img_in = np.append(img_in,np.zeros(shape=(1,h,w)),axis=0)
-    img_out = (normalize(img[22])+normalize(img[23])+normalize(img[24])+normalize(img[25]))/4
+    img_out = np.sum(img[22:26], axis=0)/4
     img_out = np.append(img_out,np.zeros(shape=(1,h,w)),axis=0)
     
     return img_in, img_out
@@ -166,19 +168,26 @@ def start_preprocessing(in_dir):
 
         img_in, img_out = select_time(img)
         img_in, img_out = find_boundary(img_in, img_out)
+
+        norm_together = normalize(np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0))
+        img_in = norm_together[0]
+        img_out = norm_together[1]
+
+        img_final2D = np.append(img_in,img_out,axis=2) #合併 左STF右GT
+        img_final2D = (img_final2D+1)*127.5
+
         img_final = np.append(np.expand_dims(img_in,axis=0),np.expand_dims(img_out,axis=0),axis=0)
         img_final = np.expand_dims(img_final,axis=4)
-        img_final2D = np.append(img_in,img_out,axis=2) #合併 左STF右GT
+
         num+=1
         show_info(img_final,img_name,num,total)
-        #finished transforming from [STF1,STF2,STF3,...,STF26] to [STF23,AVG[STF23,STF24,STF25,STF26]] and normalized
-        
+                
         #Start saving to .tfrecord
-        record_path = os.path.join(train_path,img_name)
+        record_path = os.path.join(train_path_3D,img_name)
         record_path_2D = os.path.join(train_path_2D,img_name)
         for tname in test_name:
             if(tname == img_name.split('_acq')[0]):
-                record_path = os.path.join(test_path,img_name)
+                record_path = os.path.join(test_path_3D,img_name)
                 record_path_2D = os.path.join(test_path_2D,img_name)
                 test_name.remove(tname)
         
@@ -186,18 +195,23 @@ def start_preprocessing(in_dir):
             example = create_tfrecords(img_final)
             writer.write(example.SerializeToString())
 
-        #儲存成2D slice
-        slice = 0
-        while slice <= 126:
-            plt.imsave(record_path_2D+'_'+str(slice).zfill(3)+'.png', img_final2D[slice], cmap='gray')   #slice=第幾層
-            slice+=1
+        #Start saving to .png
+        for slice in range(0,90):
+            output = img_final2D[slice]
+            outname = record_path_2D+'_'+str(slice).zfill(3)+'.png'
+            PIL.Image.fromarray(output).convert('L').save(outname)
             
 def main():
+
+
+
+
+
     parser = argparse.ArgumentParser(description='Preprocess OASIS3 AV45 .nii.gz, output will be .tfrecord format.')
     parser.add_argument("--data-dir", help="Folder path, all .nii.gz downloaded from OASIS3 saved in one folder.")
     parser.add_argument("--folder-struc", help="a=> .nii.gz barried within layers of folders; b=> ")
     args = parser.parse_args()
     start_preprocessing(args.data_dir)
-
+    
 if __name__ == "__main__":
     main()

@@ -22,20 +22,20 @@ def parse_image(example_proto):
     
     return image_raw[0], image_raw[1]
 
-def load_png(image_file):
+def split_png(image_file):
     image = tf.io.read_file(image_file)
-    image = tf.image.decode_png(image)
+    image = tf.image.decode_png(image, channels=1)
 
     w = tf.shape(image)[1]
 
     w = w // 2
-    target = image[:, w:, :]
-    stf = image[:, :w, :]
+    target = image[:, w:]
+    stf = image[:, :w]
 
     target = tf.cast(target, tf.float32)
     stf = tf.cast(stf, tf.float32)
-
-    return stf, target
+    
+    return (stf/127.5)-1, (target/127.5)-1
     
 
 def load_tfrecord(train_dir, test_dir, BATCH_SIZE, BUFFER_SIZE):
@@ -56,13 +56,13 @@ def load_tfrecord(train_dir, test_dir, BATCH_SIZE, BUFFER_SIZE):
 def load_png(train_dir_2d, test_dir_2d, BATCH_SIZE, BUFFER_SIZE):
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     train_dataset = tf.data.Dataset.list_files(f'{train_dir_2d}/*.png')
-    train_dataset = train_dataset.map(load_png, num_parallel_calls=tf.data.AUTOTUNE)
+    train_dataset = train_dataset.map(split_png, num_parallel_calls=AUTOTUNE)
     train_dataset = train_dataset.shuffle(BUFFER_SIZE)
     train_dataset = train_dataset.batch(BATCH_SIZE)
 
-    test_dataset = tf.data.Dataset.list_files(f'{test_dir_2d}/*.png')
+    test_dataset = tf.data.Dataset.list_files(f'{test_dir_2d}/*.png', shuffle=False)
     names = test_dataset
-    test_dataset = train_dataset.map(load_png, num_parallel_calls=tf.data.AUTOTUNE)
-    test_dataset = train_dataset.batch(BATCH_SIZE)
+    test_dataset = test_dataset.map(split_png, num_parallel_calls=AUTOTUNE)
+    test_dataset = test_dataset.batch(BATCH_SIZE)
 
     return train_dataset, test_dataset, names

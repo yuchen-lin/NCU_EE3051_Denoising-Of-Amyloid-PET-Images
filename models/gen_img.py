@@ -9,9 +9,9 @@ def generate_images_3d(model, test_input, tar, name, save_img_folder_name, save_
     prediction = model(test_input, training=True)
     display_list = [tf.squeeze(test_input[0]), tf.squeeze(tar[0]), tf.squeeze(prediction[0])]
     
-    im1=tf.display_list[0] * 0.5 + 0.5
-    im2=tf.display_list[1] * 0.5 + 0.5
-    im3=tf.display_list[2] * 0.5 + 0.5
+    im1=display_list[0][0:90] * 0.5 + 0.5
+    im2=display_list[1][0:90] * 0.5 + 0.5
+    im3=display_list[2][0:90] * 0.5 + 0.5
 
     out1 = sitk.GetImageFromArray(im1)
     out2 = sitk.GetImageFromArray(im2)
@@ -28,16 +28,15 @@ def generate_images_3d(model, test_input, tar, name, save_img_folder_name, save_
     print(f'{outname3} saved')
     print()
 
-    for sl in range(128):
+    for n, sl in enumerate(range(90)):
         im1_sl=im1[sl]
         im2_sl=im2[sl]
         im3_sl=im3[sl]
-    
+
         output = np.hstack((im1_sl,im2_sl,im3_sl))   #input/target/prediction
-        output = output/np.max(output)
         output = output*255
     
-        outname = f'./{save_img_folder_name}/{str(name).zfill(3)}.png'
+        outname = f'./{save_img_folder_name}/{name}_{str(sl).zfill(3)}.png'
         PIL.Image.fromarray(output).convert('L').save(outname)
         print(f'{outname} saved\n')
 
@@ -46,12 +45,11 @@ def generate_images_2d(model, test_input, tar, name, save_img_folder_name):
     prediction = model(test_input, training=True)
     display_list = [tf.squeeze(test_input[0]), tf.squeeze(tar[0]), tf.squeeze(prediction[0])]
 
-    im1=tf.display_list[0] * 0.5 + 0.5
-    im2=tf.display_list[1] * 0.5 + 0.5
-    im3=tf.display_list[2] * 0.5 + 0.5
+    im1=display_list[0] * 0.5 + 0.5
+    im2=display_list[1] * 0.5 + 0.5
+    im3=display_list[2] * 0.5 + 0.5
 
     output = np.hstack((im1,im2,im3))   #input/target/prediction
-    output = output/np.max(output)
     output = output*255
 
     outname = f'./{save_img_folder_name}/{name}'
@@ -61,11 +59,11 @@ def generate_images_2d(model, test_input, tar, name, save_img_folder_name):
 def stack_png_to_nii(load_folder, save_folder):
     output = np.zeros(shape=(128, 384))
     for n, img in enumerate(os.listdir(load_folder)):
-        img_arr = np.array(PIL.Image.open(img))[:,:,0]
-        if(n%126 == 0): #start stacking
+        img_arr = np.array(PIL.Image.open(f'{load_folder}/{img}')[:,:,0])
+        if(n%89 == 0): #start stacking
             i=0
             output = np.stack((output, img_arr), axis=0)
-        elif(i < 127):
+        elif(i < 90):
             i+=1
             output = np.stack((output, img_arr), axis=0)
         else:
