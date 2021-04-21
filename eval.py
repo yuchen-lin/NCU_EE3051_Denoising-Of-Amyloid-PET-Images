@@ -85,8 +85,6 @@ def main():
             checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
 
-            # I'm gonna deal with input-target first. Not gonna recalculate it for 100 times. NO
-
             finished_calc_inp = False
 
             for i in range(int((len(os.listdir(f'./training_checkpoints/{ckpt_name}'))-1)/2)):
