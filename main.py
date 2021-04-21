@@ -90,7 +90,6 @@ def main():
     save_img_folder_name_nii_3d = 'results/outputs_nii_3d_Unet'
     save_img_folder_name_png_2d = 'results/outputs_png_2d_Unet'
     save_img_folder_name_nii_2d = 'results/outputs_nii_2d_Unet'
-
     train_num = len(os.listdir(train_dir))
     test_num = len(os.listdir(test_dir))
     
