@@ -195,7 +195,7 @@ def main():
             
         for (inp, tar), name in zip(test_dataset,names):
             name_string = name.numpy().decode().split('test\\')[1].split('_acq')[0]
-            generate_images(generator, inp, tar, name_string, save_img_folder_name, save_img_folder_name_nii)
+            generate_images(generator, inp, tar, name_string, save_img_folder_name, save_img_folder_name_nii, args.model)
     
     else:
         print()
