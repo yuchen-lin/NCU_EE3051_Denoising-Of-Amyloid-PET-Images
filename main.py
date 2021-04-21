@@ -74,10 +74,6 @@ def fit(generator, generator_optimizer, summary_writer, train_ds, test_ds, epoch
         for inp, tar in test_ds.take(1):
             demo(mode, generator, inp, tar, 60, epoch+1)
 
-        for inp, tar in test_ds:
-            
-
-
         checkpoint.save(file_prefix = checkpoint_prefix)
 
         print ('Time taken for epoch {} is {} sec\n'.format(epoch+1,time.time()-start))
