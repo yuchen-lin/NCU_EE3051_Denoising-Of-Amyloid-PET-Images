@@ -11,7 +11,7 @@ from models.mkfolder import mfdr
 from models.load import load_tfrecord, load_png
 from models.unet_2d import model as md2
 from models.unet_3d import model as md3
-from models.gen_img import generate_images_2d, generate_images_3d, stack_png_to_nii
+from models.gen_img import generate_images
 
 def generator_loss(gen_output, target):
     l1_loss = tf.reduce_mean(tf.abs(gen_output - target))
@@ -30,7 +30,26 @@ def train_step(generator, generator_optimizer, summary_writer, input_image, targ
     with summary_writer.as_default():
         tf.summary.scalar('l1_loss', l1_loss, step=epoch)
 
-def fit(generator, generator_optimizer, summary_writer, train_ds, epochs, train_num, checkpoint, checkpoint_prefix, BATCH_SIZE, mode):
+def demo(mode, model, inp, tar, sli):
+    if mode = '3d':
+        prediction = model(inp, training=True)
+        inp = inp[sli]
+        tar = tar[sli]
+        pre = prediction[sli]
+    elif mode = '2d':
+        pre = model(inp[sli], training=True)    
+
+    output = np.hstack((inp, tar, pre))   #input/target/prediction
+    output = output*0.5+0.5 # Rescale from [-1,1] to [0,1]
+    output = output/np.max(output)  # Normalize
+    output = output*255 # Rescale from [0,1] to [0,255]
+
+    outname = f'./{save_img_folder_name}/{name}_{str(sl).zfill(3)}.png'
+    PIL.Image.fromarray(output).convert('L').save(outname)
+    print(f'{outname} saved\n')
+
+
+def fit(generator, generator_optimizer, summary_writer, train_ds, test_ds, epochs, train_num, checkpoint, checkpoint_prefix, BATCH_SIZE, mode):
     print('\nTo view training loss, type "tensorboard --logdir=logs" in anaconda prompt (environment activated)\n')
 
     for epoch in range(epochs):
@@ -50,6 +69,9 @@ def fit(generator, generator_optimizer, summary_writer, train_ds, epochs, train_
             if count%10==0 :
                 print(f'[{count}/{int(train_num/BATCH_SIZE)}]')
         
+        for inp, tar in test_ds.take(1):
+            demo(mode, generator, inp, tar, sli)
+
         checkpoint.save(file_prefix = checkpoint_prefix)
 
         print ('Time taken for epoch {} is {} sec\n'.format(epoch+1,time.time()-start))
@@ -126,13 +148,13 @@ def main():
             generator = md2(h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
             #tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64, to_file="model_unet2D.png")
-            fit(generator, generator_optimizer, summary_writer, train_dataset, int(args.epoch), train_num_2d, checkpoint, checkpoint_prefix, BATCH_SIZE)
+            fit(generator, generator_optimizer, summary_writer, train_dataset, test_dataset, int(args.epoch), train_num_2d, checkpoint, checkpoint_prefix, BATCH_SIZE, '2d')
 
         elif args.model == '3d':
             generator = md3(d, h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
             #tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64, to_file="model_unet3D.png")
-            fit(generator, generator_optimizer, summary_writer, train_dataset, int(args.epoch), train_num_3d, checkpoint, checkpoint_prefix, BATCH_SIZE)
+            fit(generator, generator_optimizer, summary_writer, train_dataset, test_dataset, int(args.epoch), train_num_3d, checkpoint, checkpoint_prefix, BATCH_SIZE, '3d')
 
         else:
             print()
