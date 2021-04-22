@@ -86,10 +86,7 @@ def load_weights(UseEpoch, checkpoint, model_name):
 def main():
     train_dir = './preprocessed_images/train'
     test_dir = './preprocessed_images/test'
-    save_img_folder_name_png_3d = 'results/outputs_png_3d_Unet'
-    save_img_folder_name_nii_3d = 'results/outputs_nii_3d_Unet'
-    save_img_folder_name_png_2d = 'results/outputs_png_2d_Unet'
-    save_img_folder_name_nii_2d = 'results/outputs_nii_2d_Unet'
+
     train_num = len(os.listdir(train_dir))
     test_num = len(os.listdir(test_dir))
     
@@ -107,7 +104,7 @@ def main():
     args = parser.parse_args()
 
     if not args.mode :
-        print('Please specify epoch!')
+        print('Please specify mode!')
         print('Check --info for more information.')
         sys.exit(1)
     elif not args.model :
@@ -115,7 +112,7 @@ def main():
         print('Check --info for more information.')
         sys.exit(1)
     elif not args.epoch :
-        print('Please specify mode!')
+        print('Please specify epoch!')
         print('Check --info for more information.')
         sys.exit(1)
 
@@ -175,7 +172,7 @@ def main():
             sys.exit(1)
 
     elif args.mode == 'predict':
-        mfdr('results')
+        mfdr(['results'])
         print("Total train data = "+str(train_num))
         print("Total test data = "+str(test_num))
         train_dataset, test_dataset, names = load_tfrecord(train_dir, test_dir, BATCH_SIZE, train_num)
@@ -183,18 +180,24 @@ def main():
         if args.model == '2d':
             generator = md2(h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            mfdr((save_img_folder_name_png_2d, save_img_folder_name_nii_2d))
+            mfdr([f'./results/epoch_{str(args.epoch).zfill(3)}'])
+            save_img_folder_name_png = f'results/epoch_{str(args.epoch).zfill(3)}/png_2d'
+            save_img_folder_name_nii = f'results/epoch_{str(args.epoch).zfill(3)}/nii_2d'
+            mfdr((save_img_folder_name_png, save_img_folder_name_nii))
             load_weights(args.epoch, checkpoint, '2d')
 
         elif args.model == '3d':
             generator = md3(d, h, w, OUTPUT_CHANNELS)
             checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer, generator=generator)
-            mfdr((save_img_folder_name_png_3d, save_img_folder_name_nii_3d))
+            mfdr([f'./results/epoch_{str(args.epoch).zfill(3)}'])
+            save_img_folder_name_png = f'results/epoch_{str(args.epoch).zfill(3)}/png_3d'
+            save_img_folder_name_nii = f'results/epoch_{str(args.epoch).zfill(3)}/nii_3d'
+            mfdr((save_img_folder_name_png, save_img_folder_name_nii))
             load_weights(args.epoch, checkpoint, '3d')
             
         for (inp, tar), name in zip(test_dataset,names):
             name_string = name.numpy().decode().split('test\\')[1].split('_acq')[0]
-            generate_images(generator, inp, tar, name_string, save_img_folder_name, save_img_folder_name_nii, args.model)
+            generate_images(generator, inp, tar, name_string, save_img_folder_name_png, save_img_folder_name_nii, args.model)
     
     else:
         print()
