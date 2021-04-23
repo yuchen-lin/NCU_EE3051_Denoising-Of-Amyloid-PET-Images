@@ -161,18 +161,18 @@ def main():
 
                 if not finished_calc_inp:
                     write_psnr_inp = str(np.mean(np.array(PSNR_inp)))
-                    write_psnr_inp_std = str(np.std(np.array(PSNR_inp_std)))
+                    write_psnr_inp_std = str(np.std(np.array(PSNR_inp)))
                     write_ssim_inp = str(np.mean(np.array(SSIM_inp)))
-                    write_ssim_inp_std = str(np.std(np.array(SSIM_inp_std)))
+                    write_ssim_inp_std = str(np.std(np.array(SSIM_inp)))
                     write_rmse_inp = str(np.mean(np.array(RMSE_inp)))
-                    write_rmse_inp_std = str(np.std(np.array(RMSE_inp_std)))
+                    write_rmse_inp_std = str(np.std(np.array(RMSE_inp)))
                     finished_calc_inp = True
                 write_psnr_pre = str(np.mean(np.array(PSNR_pre)))
-                write_psnr_pre_std = str(np.std(np.array(PSNR_pre_std)))
+                write_psnr_pre_std = str(np.std(np.array(PSNR_pre)))
                 write_ssim_pre = str(np.mean(np.array(SSIM_pre)))
-                write_ssim_pre_std = str(np.std(np.array(SSIM_pre_std)))
+                write_ssim_pre_std = str(np.std(np.array(SSIM_pre)))
                 write_rmse_pre = str(np.mean(np.array(RMSE_pre)))
-                write_rmse_pre_std = str(np.std(np.array(RMSE_pre_std)))
+                write_rmse_pre_std = str(np.std(np.array(RMSE_pre)))
 
                 writer.writerow([str(i+1), write_psnr_inp, write_psnr_inp_std, write_ssim_inp, write_ssim_inp_std, write_rmse_inp, write_rmse_inp_std, write_psnr_pre, write_psnr_pre_std, write_ssim_pre, write_ssim_pre_std, write_rmse_pre, write_rmse_pre_std])
                 print(f'Finished epoch {i+1}:')
