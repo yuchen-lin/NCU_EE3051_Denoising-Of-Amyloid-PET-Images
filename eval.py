@@ -35,8 +35,6 @@ def calc_PSNR_RMSE(im, tar):
 
     return PSNR, RMSE 
 
-def find_bound
-
 def calc_SSIM(im, tar):
     SSIM = []
     for d in range(90):
@@ -81,8 +79,8 @@ def main():
     for ckpt_name in os.listdir('training_checkpoints'):
         with open(f'{result_dir}/{ckpt_name}_eval.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['', 'input', '', '', 'prediction'])
-            writer.writerow(['epoch', 'PSNR', 'SSIM', 'RMSE', 'PSNR', 'SSIM', 'RMSE'])
+            writer.writerow(['', 'input', '', '', '', '', '', 'prediction'])
+            writer.writerow(['epoch', 'PSNR_mean', 'PSNR_std', 'SSIM_mean','SSIM_std', 'RMSE_mean', 'RMSE_std', 'PSNR_mean', 'PSNR_std', 'SSIM_mean', 'SSIM_std', 'RMSE_mean', 'RMSE_std'])
 
             if(ckpt_name == '2d'):
                 generator = md2(h, w, OUTPUT_CHANNELS)
@@ -100,11 +98,17 @@ def main():
             for i in range(int((len(os.listdir(f'./training_checkpoints/{ckpt_name}'))-1)/2)):
                 load_weights(i+1, checkpoint, ckpt_name)
                 PSNR_inp = []
+                PSNR_inp_std = []
                 SSIM_inp = []
+                SSIM_inp_std = []
                 RMSE_inp = []
+                RMSE_inp_std = []
                 PSNR_pre = []
+                PSNR_pre_std = []
                 SSIM_pre = []
+                SSIM_pre_std = []
                 RMSE_pre = []
+                RMSE_pre_std = []
                 if(ckpt_name == '2d'):
                     for n, (inp, tar) in enumerate(test_dataset):
                         prediction = []
@@ -157,21 +161,33 @@ def main():
 
                 if not finished_calc_inp:
                     write_psnr_inp = str(np.mean(np.array(PSNR_inp)))
+                    write_psnr_inp_std = str(np.std(np.array(PSNR_inp_std)))
                     write_ssim_inp = str(np.mean(np.array(SSIM_inp)))
+                    write_ssim_inp_std = str(np.std(np.array(SSIM_inp_std)))
                     write_rmse_inp = str(np.mean(np.array(RMSE_inp)))
+                    write_rmse_inp_std = str(np.std(np.array(RMSE_inp_std)))
                     finished_calc_inp = True
                 write_psnr_pre = str(np.mean(np.array(PSNR_pre)))
+                write_psnr_pre_std = str(np.std(np.array(PSNR_pre_std)))
                 write_ssim_pre = str(np.mean(np.array(SSIM_pre)))
+                write_ssim_pre_std = str(np.std(np.array(SSIM_pre_std)))
                 write_rmse_pre = str(np.mean(np.array(RMSE_pre)))
+                write_rmse_pre_std = str(np.std(np.array(RMSE_pre_std)))
 
-                writer.writerow([str(i+1), write_psnr_inp, write_ssim_inp, write_rmse_inp, str(np.mean(np.array(PSNR_pre))), str(np.mean(np.array(SSIM_pre))), str(np.mean(np.array(RMSE_pre)))])
+                writer.writerow([str(i+1), write_psnr_inp, write_psnr_inp_std, write_ssim_inp, write_ssim_inp_std, write_rmse_inp, write_rmse_inp_std, write_psnr_pre, write_psnr_pre_std, write_ssim_pre, write_ssim_pre_std, write_rmse_pre, write_rmse_pre_std])
                 print(f'Finished epoch {i+1}:')
                 print(f'inp_psnr = {write_psnr_inp}')
-                print(f'pre_psnr = {write_psnr_pre}\n')
+                print(f'inp_psnr_std = {write_psnr_inp_std}\n')
+                print(f'pre_psnr = {write_psnr_pre}')
+                print(f'pre_psnr_std = {write_psnr_pre_std}\n')
                 print(f'inp_ssim = {write_ssim_inp}')
-                print(f'pre_ssim = {write_ssim_pre}\n')
+                print(f'inp_ssim_std = {write_ssim_inp_std}\n')
+                print(f'pre_ssim = {write_ssim_pre}')
+                print(f'pre_ssim_std = {write_ssim_pre_std}\n')
                 print(f'inp_rmse = {write_rmse_inp}')
-                print(f'pre_rmse = {write_rmse_pre}\n')
+                print(f'inp_rmse_std = {write_rmse_inp_std}\n')
+                print(f'pre_rmse = {write_rmse_pre}')
+                print(f'pre_rmse_std = {write_rmse_pre_std}\n')
 
 if __name__ == "__main__":
     main()
