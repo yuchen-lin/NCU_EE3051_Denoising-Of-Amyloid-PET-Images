@@ -110,6 +110,12 @@ python main.py --mode=predict --model=3d --epoch=100
 
 * PNG image outputs from left to right: input/ground truth/prediction
 
+Some python script used for evaluation:
+```
+python eval.py
+python plot.py
+```
+
 ## Results
 
 ![alt text](results/PSNR.png "PSNR")
