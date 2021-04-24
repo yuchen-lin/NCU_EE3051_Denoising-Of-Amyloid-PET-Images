@@ -38,7 +38,7 @@ def calc_PSNR_RMSE(im, tar):
 def calc_SSIM(im, tar):
     SSIM = []
     for d in range(90):
-        SSIM.append(ssim(im[d], tar[d]))
+        SSIM.append(ssim(im[d], tar[d], win_size=11, data_range=1.0, K1=0.01, K2=0.03))
 
     SSIM = np.mean(SSIM)
     
