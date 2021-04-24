@@ -10,7 +10,8 @@ Beside from 2D kernel, we also tried 3D kernel for U-net since we're dealing wit
 Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
 To some extent, synthesis of PET with long measurement with short measurement is feasible.
 
-Result from U-net with 3D kernel: (input/target/prediction)
+Result from U-net with 3D kernel: (input/target/prediction)  
+
 ![alt text](results/epoch_100/png_3d/sub-OAS30003_ses-d3731_066.png "sample from 3D U-net")
 
 ## Resources
