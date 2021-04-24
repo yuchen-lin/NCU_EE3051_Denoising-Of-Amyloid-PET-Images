@@ -2,17 +2,16 @@
 
 **Abstract:**
 
-We apply U-net to synthesize 20 minutes late phase amyloid PET image using 5 minutes image. 
-
-**U-net modification:**
-* 3D layers for 3D input and output
-* Added some batch normalization layers for faster convergence
+We used U-net to synthesize amyloid PET's 20 minutes measurement with 5 minutes measurement. 
+Beside from 2D kernel, we also tried 3D kernel for U-net since we're dealing with 3D volume data.
 
 **Conclution:**
 
 Judging from PSNR, SSIM and RMSE, the image quality has indeed improved.
+To some extent, synthesis of PET with long measurement with short measurement is feasible.
 
-![alt text](img/result.png "ssim result")
+Result from U-net with 3D kernel: (input/target/prediction)
+![alt text](results/epoch_100/png_3d/sub-OAS30003_ses-d3731_066.png "sample from 3D U-net")
 
 ## Resources
 
@@ -35,7 +34,6 @@ Download these first:
 * [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/community/)  
 * [CUDA 11.0](https://developer.nvidia.com/cuda-11.0-download-archive)  
 * [cuDNN 8.0](https://developer.nvidia.com/cudnn)  
-* [Graphviz](https://graphviz.gitlab.io/download/)  
 
 Next, please open anaconda prompt, create a clean environment and install library dependencies:
 
@@ -84,8 +82,14 @@ python preprocess.py --data-dir=data
 
 ## Training
 
+2D U-net:
 ```
-python main.py --mode=train --model=3d --epoch=<put the number of epochs you want to train here! (recommend=30~)>
+python main.py --mode=train --model=2d --epoch=100
+```
+
+3D U-net:
+```
+python main.py --mode=train --model=3d --epoch=100
 ```
 
 To inspect training loss, please use tensorboard:
@@ -96,16 +100,15 @@ tensorboard --logdir=logs
 
 ## Generating output
 
+For example, generating results from 3D U-net's 100th epoch:
 ```
-python main.py --mode=predict --model=3d --epoch=<put the number of epoch you want to use here!>
+python main.py --mode=predict --model=3d --epoch=100
 ```
 
-* PNG image outputs from left to right: input/prediction/ground truth.
-* NIFTI image outputs have already specified whether it's input, prediction or ground truth at the end of their file name.
+* PNG image outputs from left to right: input/ground truth/prediction
 
 ## Results
 
-![alt text](img/PSNR.png "PSNR")
-![alt text](img/SSIM.png "SSIM")
-![alt text](img/RMSE.png "RMSE")
-![alt text](img/table.png "table")
+![alt text](results/PSNR.png "PSNR")
+![alt text](results/SSIM.png "SSIM")
+![alt text](results/RMSE.png "RMSE")
