@@ -1,4 +1,4 @@
-# NCU graduation project - Synthesi late phase Amyloid PET Image with Under-sampled Data
+# NCU graduation project - Synthesize late phase Amyloid PET Image with Under-sampled Data
 
 **Abstract:**
 
