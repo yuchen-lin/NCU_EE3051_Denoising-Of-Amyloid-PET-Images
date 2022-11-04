@@ -1,4 +1,4 @@
-# NCU graduation project - Denoising Of Amyloid PET Images Using U-net With L1-loss
+# NCU_EE3051_Capstone-Project：Denoising Of Amyloid PET Images Using U-net With L1-loss
 
 **Abstract:**
 
