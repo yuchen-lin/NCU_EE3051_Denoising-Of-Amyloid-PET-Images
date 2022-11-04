@@ -1,4 +1,4 @@
-# NCU graduation project - Synthesize late phase Amyloid PET Image with Under-sampled Data
+# NCU graduation project - Denoising Of Amyloid PET Images Using U-net With L1-loss
 
 **Abstract:**
 
